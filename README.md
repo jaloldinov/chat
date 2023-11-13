@@ -1,2 +1,2 @@
 # GeedBro-internship
-# chat
+# chat-app
