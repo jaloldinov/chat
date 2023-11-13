@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"io"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -34,6 +35,41 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
+}
+
+func (h *Handler) HandleFileTransfer(c *gin.Context) {
+	file, err := c.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Read the uploaded file content
+	fileContent, err := file.Open()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	defer fileContent.Close()
+
+	content, err := io.ReadAll(fileContent)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	roomd_id := c.Query("room_id")
+
+	m := &File{
+		Name:    file.Filename,
+		Content: content,
+		RoomID:  roomd_id,
+	}
+
+	h.hub.SendFile <- m
+
+	c.JSON(http.StatusOK, gin.H{"message": "File uploaded successfully"})
+
 }
 
 func (h *Handler) JoinRoom(c *gin.Context) {
