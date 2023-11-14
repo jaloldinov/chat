@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"auth/models"
 	"io"
 	"net/http"
 
@@ -85,14 +86,14 @@ func (h *Handler) JoinRoom(c *gin.Context) {
 
 	cl := &Client{
 		Conn:     conn,
-		Message:  make(chan *Message, 10),
+		Message:  make(chan *models.Message, 10),
 		File:     make(chan *File, 10),
 		ID:       clientID,
 		RoomID:   roomID,
 		Username: username,
 	}
 
-	m := &Message{
+	m := &models.Message{
 		Content:  "A new user has joined the room",
 		RoomID:   roomID,
 		Username: username,

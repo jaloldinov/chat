@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"auth/models"
 	"log"
 
 	"github.com/gorilla/websocket"
@@ -8,17 +9,11 @@ import (
 
 type Client struct {
 	Conn     *websocket.Conn
-	Message  chan *Message
+	Message  chan *models.Message
 	File     chan *File // New channel for file sending
 	ID       string     `json:"id"`
 	RoomID   string     `json:"roomId"`
 	Username string     `json:"username"`
-}
-
-type Message struct {
-	Content  string `json:"content"`
-	RoomID   string `json:"roomId"`
-	Username string `json:"username"`
 }
 
 type File struct {
@@ -72,14 +67,16 @@ func (c *Client) readMessage(hub *Hub) {
 			}
 
 			hub.SendFile <- file
+
 		} else if messageType == websocket.TextMessage {
-			msg := &Message{
+			msg := &models.Message{
 				Content:  string(data),
 				RoomID:   c.RoomID,
 				Username: c.Username,
 			}
 
 			hub.Broadcast <- msg
+
 		}
 	}
 }

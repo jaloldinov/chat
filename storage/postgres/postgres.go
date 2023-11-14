@@ -10,8 +10,9 @@ import (
 )
 
 type store struct {
-	db    *pgxpool.Pool
-	users *userRepo
+	db       *pgxpool.Pool
+	users    *userRepo
+	messages *messageRepo
 	// ws    *wsRepo
 }
 
@@ -47,9 +48,9 @@ func (b *store) User() storage.UsersI {
 	return b.users
 }
 
-// func (b *store) WS() storage.WSI {
-// 	if b.ws == nil {
-// 		b.ws = NewWSRepo(b.db)
-// 	}
-// 	return b.ws
-// }
+func (b *store) Message() storage.MessageI {
+	if b.messages == nil {
+		b.messages = NewMessageRepo(b.db)
+	}
+	return b.messages
+}

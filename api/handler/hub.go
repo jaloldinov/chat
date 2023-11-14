@@ -1,5 +1,9 @@
 package handler
 
+import (
+	"auth/models"
+)
+
 type Room struct {
 	ID      string             `json:"id"`
 	Name    string             `json:"name"`
@@ -10,7 +14,7 @@ type Hub struct {
 	Rooms      map[string]*Room
 	Register   chan *Client
 	Unregister chan *Client
-	Broadcast  chan *Message
+	Broadcast  chan *models.Message
 	SendFile   chan *File // New channel for file sending
 }
 
@@ -19,7 +23,7 @@ func NewHub() *Hub {
 		Rooms:      make(map[string]*Room),
 		Register:   make(chan *Client, 5),
 		Unregister: make(chan *Client, 5),
-		Broadcast:  make(chan *Message, 5),
+		Broadcast:  make(chan *models.Message, 5),
 		SendFile:   make(chan *File, 5),
 	}
 }
@@ -39,7 +43,7 @@ func (h *Hub) Run() {
 			if _, ok := h.Rooms[cl.RoomID]; ok {
 				if _, ok := h.Rooms[cl.RoomID].Clients[cl.ID]; ok {
 					if len(h.Rooms[cl.RoomID].Clients) != 0 {
-						h.Broadcast <- &Message{
+						h.Broadcast <- &models.Message{
 							Content:  "user left the chat",
 							RoomID:   cl.RoomID,
 							Username: cl.Username,
